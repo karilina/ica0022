@@ -1,17 +1,17 @@
-FROM python:3.14-slim AS TODO_STAGE_NAME
-# Directory for the build
-WORKDIR TODO_BUILD_HOME
+FROM python:3.12-slim-bookworm AS builder
+WORKDIR /build
 RUN python -m venv /opt/venv
-COPY TODO_DEPENDENCIES .
+COPY requirements.txt .
 RUN /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
 
-FROM python:3.14-slim AS runtime
+FROM python:3.12-slim-bookworm AS runtime
 ENV PATH="/opt/venv/bin:$PATH"
-ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=
-WORKDIR TODO_APP_HOME
-RUN TODO_USER_AND_GROUP
-COPY --from=TODO_SOURCE_STAGE TODO_ENVIRONMENT_PATH /opt/venv
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+WORKDIR /app
+RUN groupadd --gid 10001 app && useradd --uid 10001 --gid app --no-create-home app
+COPY --from=builder /opt/venv /opt/venv
 COPY app.py .
-USER TODO_UID_GID
+USER 10001:10001
 EXPOSE 8080
-CMD TODO_EXEC_FORM_COMMAND
+CMD ["waitress-serve", "--listen=0.0.0.0:8080", "app:app"]
+
