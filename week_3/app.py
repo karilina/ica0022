@@ -1,7 +1,7 @@
 import json
 
-APP_VERSION = "0.1.0"
-MESSAGE = "Hello from week 3, build cache"
+APP_VERSION = "0.1.1"
+MESSAGE = "Hello from week 3, build cache new version"
 
 
 def app(environ, start_response):
