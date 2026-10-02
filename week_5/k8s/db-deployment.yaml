@@ -2,20 +2,20 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: db
-  namespace: TODO
+  namespace: ica0022
   labels:
-    app: TODO
+    app: ica0022-db
 spec:
   replicas: 1
   strategy:
-    type: TODO
+    type: Recreate
   selector:
     matchLabels:
-      app: TODO
+      app: ica0022-db
   template:
     metadata:
       labels:
-        app: TODO
+        app: ica0022-db
     spec:
       containers:
         - name: postgres

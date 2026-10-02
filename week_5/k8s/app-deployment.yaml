@@ -2,22 +2,22 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: app
-  namespace: TODO
+  namespace: ica0022
   labels:
-    app: TODO
+    app: ica0022-app
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: TODO
+      app: ica0022-app
   template:
     metadata:
       labels:
-        app: TODO
+        app: ica0022-app
     spec:
       containers:
         - name: app
-          image: TODO
+          image: ica0022:v1.1.0
           ports:
             - containerPort: 8080
           env:
