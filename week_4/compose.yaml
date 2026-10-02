@@ -5,22 +5,47 @@ services:
     image: ica0022:v1.1.0
     build: .
     ports:
-      - TODO_EXPOSE_PORTS
-    environment: TODO_ADD_ENVS
+      - "127.0.0.1:8080:8080"
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: ica0022
+      DB_USER: ica0022
+      DB_PASSWORD: ica0022-pass
     depends_on:
       db:
-        condition: TODO_CONDITION
-    networks: TODO_ADD_NETWORK
+        condition: service_healthy
+    networks:
+      - backend
 
   db:
     image: postgres:17-bookworm
-    environment: TODO_ADD_ENVS
+    environment:
+      POSTGRES_DB: ica0022
+      POSTGRES_USER: ica0022
+      POSTGRES_PASSWORD: ica0022-pass
     volumes:
-      - TODO_BIND_VOLUME
-      - TODO_BIND_MOUTN_PATH
-    healthcheck: TODO_ADD_HEALTH_CHECK
-    networks: TODO_ADD_NETWORK
+      - db-data:/var/lib/postgresql/data
+      - type: bind
+        source: ./init.sql
+        target: /docker-entrypoint-initdb.d/init.sql
+        read_only: true
+        bind:
+          create_host_path: false
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "ica0022", "-d", "ica0022"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    networks:
+      - backend
 
-networks: TODO_ADD_NETWORK
+networks:
+  backend:
+    driver: bridge
+  isolated:
+    driver: bridge
 
-volumes: TODO_ADD_VOLUME
+volumes:
+  db-data:
