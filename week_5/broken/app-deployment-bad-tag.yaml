@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+  namespace: ica0022
+  labels:
+    app: ica0022-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ica0022-app
+  template:
+    metadata:
+      labels:
+        app: ica0022-app
+    spec:
+      containers:
+        - name: app
+          image: ica0022:v9.9.9
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_HOST
+              value: db
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: ica0022
+            - name: DB_USER
+              value: ica0022
+            - name: DB_PASSWORD
+              value: ica0022-pass

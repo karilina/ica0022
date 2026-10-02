@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+  namespace: TODO
+  labels:
+    app: TODO
+spec:
+  replicas: 1
+  strategy:
+    type: TODO
+  selector:
+    matchLabels:
+      app: TODO
+  template:
+    metadata:
+      labels:
+        app: TODO
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:17-bookworm
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: ica0022
+            - name: POSTGRES_USER
+              value: ica0022
+            - name: POSTGRES_PASSWORD
+              value: ica0022-pass

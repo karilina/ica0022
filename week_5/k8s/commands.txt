@@ -1,0 +1,12 @@
+# 1. Create table in the database
+kubectl exec deploy/db -- psql -U ica0022 -d ica0022 -c "CREATE TABLE IF NOT EXISTS counter (id integer PRIMARY KEY CHECK (id = 1), visits bigint NOT NULL DEFAULT 0); INSERT INTO counter (id, visits) VALUES (1, 0) ON CONFLICT (id) DO NOTHING;"
+
+# 2. Temporary pod to investigate networking
+kubectl run dns-test --rm -it --image=alpine:3.24 --restart=Never -- sh
+
+# 3. Commands to run inside the temporary pod
+cat /etc/resolv.conf
+nslookup db
+nslookup app
+wget -qO- http://app:8080
+exit
