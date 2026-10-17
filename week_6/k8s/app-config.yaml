@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: ica0022
+data:
+  DB_HOST: TODO
+  DB_PORT: TODO
+  DB_NAME: TODO
+  DB_USER: TODO

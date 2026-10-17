@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+  namespace: ica0022
+  labels:
+    app: ica0022-db
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: ica0022-db
+  template:
+    metadata:
+      labels:
+        app: ica0022-db
+    spec:
+      volumes:
+        - name: TODO_CONFIGMAP
+        - name: TODO_PVC
+      containers:
+        - name: postgres
+          image: postgres:17-bookworm
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: TODO_CONFIGMAP
+            - name: TODO_PVC
+          env:
+            - name: POSTGRES_DB
+              value: ica0022
+            - name: POSTGRES_USER
+              value: ica0022
+          envFrom:
+            - TODO_SECRET_REF

@@ -8,7 +8,7 @@ def app(environ, start_response):
     if environ.get("PATH_INFO", "/") == "/":
         status = "200 OK"
         payload = {
-            "application": "course-app",
+            "application": "ica0022",
             "version": APP_VERSION,
             "message": MESSAGE,
         }
