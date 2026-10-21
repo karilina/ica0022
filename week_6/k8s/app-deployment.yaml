@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: ica0022:v1.2.0
+          image: ica0022:v1.1.0
           ports:
             - containerPort: 8080
           envFrom:
