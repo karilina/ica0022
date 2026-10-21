@@ -20,17 +20,11 @@ spec:
           image: ica0022:v1.2.0
           ports:
             - containerPort: 8080
-          env:
-            - name: DB_HOST
-              value: db
-            - name: DB_PORT
-              value: "5432"
-            - name: DB_NAME
-              value: ica0022
-            - name: DB_USER
-              value: ica0022
-            - name: DB_PASSWORD
-              value: ica0022-pass
+          envFrom:
+            - configMapRef:
+                name: app-config
+            - secretRef:
+                name: db-credentials
 #          livenessProbe:
 #            httpGet:
 #              path: TODO

@@ -4,7 +4,7 @@ metadata:
   name: app-config
   namespace: ica0022
 data:
-  DB_HOST: TODO
-  DB_PORT: TODO
-  DB_NAME: TODO
-  DB_USER: TODO
+  DB_HOST: db
+  DB_PORT: "5432"
+  DB_NAME: ica0022
+  DB_USER: ica0022

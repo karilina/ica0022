@@ -17,21 +17,21 @@ spec:
       labels:
         app: ica0022-db
     spec:
-      volumes:
-        - name: TODO_CONFIGMAP
-        - name: TODO_PVC
+      # volumes:
+      #   - name: TODO_CONFIGMAP
+      #   - name: TODO_PVC
       containers:
         - name: postgres
           image: postgres:17-bookworm
           ports:
             - containerPort: 5432
-          volumeMounts:
-            - name: TODO_CONFIGMAP
-            - name: TODO_PVC
+          # volumeMounts:
+            # - name: TODO_CONFIGMAP
+            # - name: TODO_PVC
           env:
             - name: POSTGRES_DB
               value: ica0022
             - name: POSTGRES_USER
               value: ica0022
-          envFrom:
-            - TODO_SECRET_REF
+          # envFrom:
+          #   - TODO_SECRET_REF
