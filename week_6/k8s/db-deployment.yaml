@@ -40,5 +40,6 @@ spec:
               value: ica0022
             - name: POSTGRES_USER
               value: ica0022
-          # envFrom:
-          #   - TODO_SECRET_REF
+          envFrom:
+            - secretRef:
+                name: db-credentials
