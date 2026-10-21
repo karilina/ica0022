@@ -17,17 +17,24 @@ spec:
       labels:
         app: ica0022-db
     spec:
-      # volumes:
-      #   - name: TODO_CONFIGMAP
-      #   - name: TODO_PVC
+      volumes:
+        - name: init
+          configMap:
+            name: db-init
+        - name: data
+          persistentVolumeClaim:
+            claimName: db-data
       containers:
         - name: postgres
           image: postgres:17-bookworm
           ports:
             - containerPort: 5432
-          # volumeMounts:
-            # - name: TODO_CONFIGMAP
-            # - name: TODO_PVC
+          volumeMounts:
+            - name: init
+              mountPath: /docker-entrypoint-initdb.d
+              readOnly: true
+            - name: data
+              mountPath: /var/lib/postgresql/data
           env:
             - name: POSTGRES_DB
               value: ica0022
