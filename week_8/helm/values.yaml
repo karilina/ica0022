@@ -1,0 +1,45 @@
+replicaCount: 3
+
+image:
+  repository: "609722444275.dkr.ecr.eu-north-1.amazonaws.com/students/uniid"
+  tag: "1.2.0"
+
+# TODO non-secret configuration, rendered into a ConfigMap and loaded with envFrom.
+config: {}
+
+dbCredentials: db-credentials
+
+# TODO_ADD_PROBES
+probes: {}
+
+# TODO_DEFINE_RESOURCE_REQUESTS
+resources: {}
+
+service:
+  port: 8080
+
+ingress:
+  enabled: true
+  className: alb
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/healthcheck-path: /readyz
+
+# Parent values use the dependency alias. Inside the subchart these become
+# .Values.fullnameOverride, .Values.auth, .Values.persistence, and so on.
+postgresql:
+  enabled: true
+  # TODO_POSTGRESQL_CONFIGURATION
+
+  initdb:
+    scripts:
+      init.sql: |
+        CREATE TABLE IF NOT EXISTS counter (
+            id integer PRIMARY KEY CHECK (id = 1),
+            visits bigint NOT NULL DEFAULT 0
+        );
+
+        INSERT INTO counter (id, visits)
+        VALUES (1, 0)
+        ON CONFLICT (id) DO NOTHING;

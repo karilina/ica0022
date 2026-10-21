@@ -29,7 +29,7 @@ kubectl exec deploy/db -- ls -la /var/lib/postgresql/data
 # 5  build, push, deploy
 aws ecr get-login-password --region eu-north-1 --profile ica0022 | docker login --username AWS --password-stdin 609722444275.dkr.ecr.eu-north-1.amazonaws.com
 docker buildx build --platform linux/amd64 -t 609722444275.dkr.ecr.eu-north-1.amazonaws.com/students/uniid:v1.2.0 --push .      # run from app/
-docker buildx imagetools inspect 609722444275.dkr.ecr.eu-north-1.amazonaws.com/students/uniid:1.2.0
+docker buildx imagetools inspect 609722444275.dkr.ecr.eu-north-1.amazonaws.com/students/uniid:v1.2.0
 kubectl apply -f k8s/app-deployment.yaml
 kubectl apply -f k8s/app-service.yaml
 kubectl rollout status deployment/app

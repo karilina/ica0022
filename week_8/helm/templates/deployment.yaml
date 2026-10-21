@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: TODO_NAME_USING_RELEASE_NAME
+  labels:
+    TODO_ADD_LABELS_USING_HELM_VALUES
+spec:
+  replicas: TODO_ADD_REPLICAS_USING_VALUES
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      TODO_ADD_LABELS_USING_HELM_VALUES
+  template:
+    metadata:
+      labels:
+        TODO_ADD_LABELS_USING_HELM_VALUES
+      annotations:
+        # Changing the ConfigMap content changes this hash, which rolls the Pods.
+        checksum/config: TODO_ADD_CHECKSUM
+    spec:
+      containers:
+        - name: app
+          image: TODO_IMAGE_REPO_AND_TAG
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: TODO_NAME_USING_RELEASE_NAME
+            - secretRef:
+                name: TODO_SECRET_VALUE
+          livenessProbe:
+            httpGet:
+              path: TODO_LIVENESS_VALUE
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: TODO_READINESS_VALUE
+              port: http
+            periodSeconds: 5
+            failureThreshold: 3
+          resources:
+            TODO_RESOURCES_FROM_VALUES

@@ -1,0 +1,7 @@
+apiVersion: v2
+name: ica0022-app
+description: The course application with a PostgreSQL chart dependency.
+type: application
+version: 0.1.0
+appVersion: "1.2.0"
+# TODO Add postgresql dependency

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: TODO_NAME_USING_RELEASE_NAME
+  labels:
+    TODO_ADD_LABELS_USING_HELM_VALUES
+data:
+  TODO_LOAD_USING_VALUES

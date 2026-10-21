@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: TODO_NAME_USING_RELEASE_NAME
+  labels:
+    TODO_ADD_LABELS_USING_HELM_VALUES
+spec:
+  type: ClusterIP
+  selector:
+    TODO_ADD_LABELS_USING_HELM_VALUES
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: http

@@ -1,0 +1,12 @@
+{{ .Chart.Name }} release {{ .Release.Name }} in {{ .Release.Namespace }}.
+Application: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+PostgreSQL dependency enabled: {{ .Values.postgresql.enabled }}
+
+Watch both Deployments:
+  kubectl rollout status deployment/{{ .Release.Name }}
+  kubectl rollout status deployment/{{ .Values.postgresql.fullnameOverride }}
+Find the public address:
+  kubectl get ingress {{ .Release.Name }}
+
+The existing PVC and Secret are outside this release.
+Rollback restores Kubernetes manifests, not database contents.

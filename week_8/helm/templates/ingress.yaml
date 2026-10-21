@@ -1,0 +1,21 @@
+TODO_ENABLE_INGRESS
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: TODO_NAME_USING_RELEASE_NAME
+  labels:
+    TODO_ADD_LABELS_USING_HELM_VALUES
+  annotations:
+    TODO_ANNOTATIONS_FROM_VALUE
+spec:
+  ingressClassName: TODO_CLASS_FROM_VALUE
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: TODO_NAME_USING_RELEASE_NAME
+                port:
+                  number: TODO_PORT_VALUE
