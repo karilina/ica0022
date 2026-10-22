@@ -1,0 +1,6 @@
+dependencies:
+- name: ica0022_postgresql
+  repository: oci://609722444275.dkr.ecr.eu-north-1.amazonaws.com/charts
+  version: 1.0.0
+digest: sha256:eb963443c8c1f2b825c6688cd745a44edb46056cbcb519914b0eecb1f71ec8da
+generated: "2026-10-22T18:51:05.32619615+03:00"
