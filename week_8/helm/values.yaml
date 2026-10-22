@@ -14,10 +14,17 @@ config:
 dbCredentials: db-credentials
 
 # TODO_ADD_PROBES
-probes: {}
+probes:
+  livenessPath: /healthz
+  readinessPath: /readyz
 
 # TODO_DEFINE_RESOURCE_REQUESTS
-resources: {}
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    memory: 256Mi
 
 service:
   port: 8080

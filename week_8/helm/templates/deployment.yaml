@@ -1,11 +1,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: TODO_NAME_USING_RELEASE_NAME
+  name: {{ .Release.Name }}
   labels:
-    TODO_ADD_LABELS_USING_HELM_VALUES
+    {{- include "ica0022-app.labels" . | nindent 4 }}
 spec:
-  replicas: TODO_ADD_REPLICAS_USING_VALUES
+  replicas: {{ .Values.replicaCount }}
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -13,37 +13,37 @@ spec:
       maxUnavailable: 0
   selector:
     matchLabels:
-      TODO_ADD_LABELS_USING_HELM_VALUES
+      {{- include "ica0022-app.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        TODO_ADD_LABELS_USING_HELM_VALUES
+        {{- include "ica0022-app.selectorLabels" . | nindent 8 }}
       annotations:
         # Changing the ConfigMap content changes this hash, which rolls the Pods.
-        checksum/config: TODO_ADD_CHECKSUM
+        checksum/config: {{ toYaml .Values.config | sha256sum }}
     spec:
       containers:
         - name: app
-          image: TODO_IMAGE_REPO_AND_TAG
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           ports:
             - name: http
               containerPort: 8080
           envFrom:
             - configMapRef:
-                name: TODO_NAME_USING_RELEASE_NAME
+                name: {{ .Release.Name }}
             - secretRef:
-                name: TODO_SECRET_VALUE
+                name: {{ .Values.dbCredentials }}
           livenessProbe:
             httpGet:
-              path: TODO_LIVENESS_VALUE
+              path: {{ .Values.probes.livenessPath }}
               port: http
             initialDelaySeconds: 5
             periodSeconds: 10
           readinessProbe:
             httpGet:
-              path: TODO_READINESS_VALUE
+              path: {{ .Values.probes.readinessPath }}
               port: http
             periodSeconds: 5
             failureThreshold: 3
           resources:
-            TODO_RESOURCES_FROM_VALUES
+            {{ toYaml .Values.resources | nindent 12 }}
