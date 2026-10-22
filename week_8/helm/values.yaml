@@ -24,7 +24,7 @@ resources:
     cpu: 50m
     memory: 64Mi
   limits:
-    memory: 256Mi
+    memory: 512Mi
 
 service:
   port: 8080
@@ -42,6 +42,24 @@ ingress:
 postgresql:
   enabled: true
   # TODO_POSTGRESQL_CONFIGURATION
+  fullnameOverride: db
+
+  auth:
+    database: ica0022
+    username: ica0022
+    secretKey: POSTGRES_PASSWORD
+
+  persistence:
+    enabled: true
+    subPath: pgdata
+    size: 1Gi
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      memory: 512Mi
 
   initdb:
     scripts:
