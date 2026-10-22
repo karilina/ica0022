@@ -46,4 +46,4 @@ spec:
             periodSeconds: 5
             failureThreshold: 3
           resources:
-            {{ toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.resources | nindent 12 }}
