@@ -1,14 +1,16 @@
-TODO_ENABLE_INGRESS
+{{- if .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: TODO_NAME_USING_RELEASE_NAME
+  name: {{ .Release.Name }}
   labels:
-    TODO_ADD_LABELS_USING_HELM_VALUES
+    {{- include "ica0022-app.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
   annotations:
-    TODO_ANNOTATIONS_FROM_VALUE
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
-  ingressClassName: TODO_CLASS_FROM_VALUE
+  ingressClassName: {{ .Values.ingress.className }}
   rules:
     - http:
         paths:
@@ -16,6 +18,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: TODO_NAME_USING_RELEASE_NAME
+                name: {{ .Release.Name }}
                 port:
-                  number: TODO_PORT_VALUE
+                  number: {{ .Values.service.port }}
+{{- end }}
