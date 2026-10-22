@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: TODO_NAME_USING_RELEASE_NAME
+  name: {{ .Release.Name }}
   labels:
-    TODO_ADD_LABELS_USING_HELM_VALUES
+    {{- include "ica0022-app.labels" . | nindent 4 }}
 data:
-  TODO_LOAD_USING_VALUES
+  {{- toYaml .Values.config | nindent 2 }}

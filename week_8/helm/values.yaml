@@ -1,11 +1,15 @@
 replicaCount: 3
 
 image:
-  repository: "609722444275.dkr.ecr.eu-north-1.amazonaws.com/students/uniid"
+  repository: "609722444275.dkr.ecr.eu-north-1.amazonaws.com/students/kafina"
   tag: "1.2.0"
 
 # TODO non-secret configuration, rendered into a ConfigMap and loaded with envFrom.
-config: {}
+config:
+  DB_HOST: db
+  DB_PORT: "5432"
+  DB_NAME: ica0022
+  DB_USER: ica0022
 
 dbCredentials: db-credentials
 
