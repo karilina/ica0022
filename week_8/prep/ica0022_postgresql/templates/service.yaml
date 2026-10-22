@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ica0022-postgresql.fullname" . }}
+  labels:
+    {{- include "ica0022-postgresql.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "ica0022-postgresql.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: postgresql
+      port: {{ .Values.service.port }}
+      targetPort: 5432

@@ -1,0 +1,7 @@
+apiVersion: v2
+appVersion: "17"
+description: PostgreSQL for the ICA0022 course application. Single instance, Deployment
+  with a ReadWriteOnce volume. Not a production database chart.
+name: ica0022_postgresql
+type: application
+version: 1.0.0

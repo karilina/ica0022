@@ -1,0 +1,35 @@
+# Name used for every object this chart creates. The course app expects the
+# Service to be reachable as "db", so the lab sets this to db.
+fullnameOverride: ""
+
+image:
+  repository: postgres
+  tag: 17-bookworm
+  pullPolicy: IfNotPresent
+
+auth:
+  database: ica0022
+  username: ica0022
+  password: ica0022
+
+persistence:
+  size: 1Gi
+  storageClass: ""
+  # Subdirectory on the volume; a formatted disk is not an empty directory.
+  subPath: pgdata
+
+initdb:
+  enabled: true
+  # Each key becomes a file in /docker-entrypoint-initdb.d.
+  # Runs only when PostgreSQL initialises an empty data directory.
+  scripts: {}
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 512Mi
+
+service:
+  port: 5432
