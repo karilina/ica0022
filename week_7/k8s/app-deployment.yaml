@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: 609722444275.dkr.ecr.eu-north-1.amazonaws.com/students/larasi:1.2.0
+          image: 609722444275.dkr.ecr.eu-north-1.amazonaws.com/students/kafina:1.2.0
           ports:
             - containerPort: 8080
           envFrom:
