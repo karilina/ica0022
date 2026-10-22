@@ -42,4 +42,12 @@ kubectl get ingress -w
 
 # 7  cleanup
 kubectl delete -f k8s/app-ingress.yaml
+------------------------------------------
+kubectl get deploy
+kubectl vim (edit) deploy app
+(replicas 0)
+kubectl vim (edit) deploy db
+(replicas 0)
+kubectl get pods
+
 ```
