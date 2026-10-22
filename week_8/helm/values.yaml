@@ -48,6 +48,7 @@ postgresql:
     database: ica0022
     username: ica0022
     secretKey: POSTGRES_PASSWORD
+    existingSecret: db-credentials
 
   persistence:
     enabled: true
