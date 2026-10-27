@@ -32,6 +32,21 @@ Also the annotations for the ingress resource to create an ALB will be provided 
 
 The python application that we have worked with in the class that you will use to show a running application
 
+Authentication commands i.e
+
+```bash
+# AWS login
+aws sso login
+
+# Docker auth
+aws ecr get-login-password --region eu-north-1 --profile ica0022 | docker login --username AWS --password-stdin 609722444275.dkr.ecr.eu-north-1.amazonaws.com
+
+# Helm auth
+aws ecr get-login-password --region eu-north-1 --profile ica0022 | helm registry login --username AWS --password-stdin 609722444275.dkr.ecr.eu-north-1.amazonaws.com
+```
+
+If for some reason auth to AWS itself stops working then ask the teacher for help since fixing that is not part of the exam
+
 At the start of the exam you will be provided a github repo to clone / fork where you will get
 all of the necessary information for the exam
 
