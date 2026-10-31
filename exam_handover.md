@@ -30,6 +30,26 @@ The kubernetes environment where you will be working including all of the contro
 The teacher provides the postgresql helm chart to be used for the part A of the exam.
 Also the annotations for the ingress resource to create an ALB will be provided for you
 
+The python application that we have worked with in the class that you will use to show a running application
+
+Authentication commands i.e
+
+```bash
+# AWS login
+aws sso login
+
+# Docker auth
+aws ecr get-login-password --region eu-north-1 --profile ica0022 | docker login --username AWS --password-stdin 609722444275.dkr.ecr.eu-north-1.amazonaws.com
+
+# Helm auth
+aws ecr get-login-password --region eu-north-1 --profile ica0022 | helm registry login --username AWS --password-stdin 609722444275.dkr.ecr.eu-north-1.amazonaws.com
+```
+
+If for some reason auth to AWS itself stops working then ask the teacher for help since fixing that is not part of the exam
+
+At the start of the exam you will be provided a github repo to clone / fork where you will get
+all of the necessary information for the exam
+
 ### What happens before the exam
 
 Since Part A of the exam is basically what we've built together over the 8 weeks then it is not possible to keep it there.
@@ -53,9 +73,14 @@ Goal of part A is to build out an application that covers the following requirem
     - [ ] Configmap to define shared configuration
     - [ ] Secret for credentials
 5. Deploy Postgresql with persistent data - Points 4
+    - [ ] If you are deploying it using Helm use version 1.3.0
 6. Configure application health probes - Points 2
 7. Expose the application through the AWS ALB by creating an Ingress - Points 2
 8. Build the application into a helm chart and install it - Points 6
+    - Add the following values to score points
+        - [ ] Configmap data read from values
+        - [ ] Probes defined in values
+        - [ ] Resource requests and limits from values
 9. Teacher will ask some final questions based on the provided work - Points 2
 
 ### Hints
