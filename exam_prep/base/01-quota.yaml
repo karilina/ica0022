@@ -1,0 +1,12 @@
+# Like the EKS namespace in week 7: the namespace has a ResourceQuota.
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: practice-quota
+  namespace: exam-practice
+spec:
+  hard:
+    pods: "40"
+    requests.cpu: "4"
+    requests.memory: 2Gi
+    limits.memory: 8Gi

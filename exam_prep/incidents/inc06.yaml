@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inc06
+  namespace: exam-practice
+  labels:
+    app: inc06
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inc06
+  template:
+    metadata:
+      labels:
+        app: inc06
+    spec:
+      containers:
+        - name: app
+          image: ica0022:v1.2.0
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: app-config
+            - secretRef:
+                name: db-credentials
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests: {cpu: 50m, memory: 64Mi}
+            limits: {memory: 256Mi}
