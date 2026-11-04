@@ -19,7 +19,7 @@ resources:
 
 persistence:
   size: 1Gi
-  storageClass: ""
+  storageClass: "ebs-csi-default-sc"
   # Subdirectory on the volume; a formatted disk is not an empty directory.
   subPath: pgdata
 
