@@ -1,0 +1,8 @@
+PostgreSQL chart in release {{ .Release.Name }} in namespace {{ .Release.Namespace }}.
+
+Service (ClusterIP only, never expose this): {{ include "ica0022-postgresql.fullname" . }}:{{ .Values.service.port }}
+Database: {{ .Values.auth.database }}   User: {{ .Values.auth.username }}
+Password comes from Secret {{ include "ica0022-postgresql.secretName" . }} key {{ .Values.auth.secretKey }}
+Data: {{ if .Values.persistence.enabled }}PVC {{ include "ica0022-postgresql.claimName" . }}{{ else }}emptyDir (NOT persistent){{ end }}
+
+A helm rollback restores this chart's manifests. It does not roll back the data on the volume.
