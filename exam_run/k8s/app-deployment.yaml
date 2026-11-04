@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: app
+  name: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      containers:
+      - image: 609722444275.dkr.ecr.eu-north-1.amazonaws.com/students/kafina:v2.0.0
+        name: kafina
+        ports:
+        - containerPort: 8080
+        resources: {}
+status: {}
