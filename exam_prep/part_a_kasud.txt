@@ -1,0 +1,299 @@
+#######################################################################
+# ICA0022 PART A — команды по порядку
+# registry: 609722444275.dkr.ecr.eu-north-1.amazonaws.com
+# repo: students/kafina   namespace: student-kafina   context: ica0022
+#######################################################################
+
+
+### 0. ВХОД AWS / КОНТЕКСТ ############################################
+
+# вход aws
+aws sso login --profile ica0022
+aws sts get-caller-identity --profile ica0022
+
+# kubeconfig (только если контекста нет)
+aws eks update-kubeconfig --region eu-north-1 --name ica0022 --profile ica0022 --alias ica0022
+kubectl config set-context ica0022 --namespace student-kafina
+
+# контекст
+kubectl config get-contexts
+kubectl config use-context ica0022
+kubectl config view --minify | grep namespace
+
+# старт: пусто? квота?
+helm list
+helm delete db
+kubectl get all,cm,secret,pvc,ingress
+kubectl describe resourcequota
+kubectl get storageclass
+
+
+### 1. ПАПКА + DOCKERFILE #############################################
+
+mkdir -p ~/ica0022/exam_run && cd ~/ica0022/exam_run
+# app.py + requirements.txt из репо экзамена
+
+cat > Dockerfile <<'EOF'
+FROM python:3.12-slim-bookworm AS builder
+WORKDIR /build
+RUN python -m venv /opt/venv
+COPY requirements.txt .
+RUN /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
+
+FROM python:3.12-slim-bookworm AS runtime
+ENV PATH="/opt/venv/bin:$PATH"
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+WORKDIR /app
+RUN groupadd --gid 10001 app && useradd --uid 10001 --gid app --no-create-home app
+COPY --from=builder /opt/venv /opt/venv
+COPY app.py .
+USER 10001:10001
+EXPOSE 8080
+CMD ["waitress-serve", "--listen=0.0.0.0:8080", "app:app"]
+EOF
+
+cat > .dockerignore <<'EOF'
+__pycache__/
+*.pyc
+venv/
+.venv/
+.git
+.gitignore
+Dockerfile
+.dockerignore
+chart/
+*.md
+EOF
+
+
+### 2. ECR LOGIN + BUILD + PUSH #######################################
+
+# логин docker -> ECR
+aws ecr get-login-password --region eu-north-1 --profile ica0022 | docker login --username AWS --password-stdin 609722444275.dkr.ecr.eu-north-1.amazonaws.com
+
+# если "The stub received bad data" -> убрать credsStore
+cp ~/.docker/config.json ~/.docker/config.json.bak
+python3 -c 'import json,os; p=os.path.expanduser("~/.docker/config.json"); c=json.load(open(p)); c.pop("credsStore",None); json.dump(c,open(p,"w"),indent=2)'
+
+# build + push (linux/amd64!)
+docker buildx build --platform linux/amd64 \
+  -t 609722444275.dkr.ecr.eu-north-1.amazonaws.com/students/kafina:v2.0.0 \
+  --push .
+
+# проверка: Platform: linux/amd64
+docker buildx imagetools inspect 609722444275.dkr.ecr.eu-north-1.amazonaws.com/students/kafina:v2.0.0
+
+# какие теги в ECR
+aws ecr describe-images --repository-name students/kafina --profile ica0022 --region eu-north-1 --query 'imageDetails[].imageTags' --output text
+
+
+### 3. CONFIGMAP + SECRET #############################################
+
+mkdir -p k8s
+
+kubectl create configmap app-config \
+  --from-literal=DB_HOST=db \
+  --from-literal=DB_PORT=5432 \
+  --from-literal=DB_NAME=ica0022 \
+  --from-literal=DB_USER=ica0022 \
+  --dry-run=client -o yaml > k8s/app-config.yaml
+
+kubectl create secret generic app-secret \
+  --from-literal=DB_PASSWORD=ica0022 \
+  --dry-run=client -o yaml > k8s/app-secret.yaml
+
+kubectl apply -f k8s/
+kubectl get cm,secret
+echo aWNhMDAyMg== | base64 -d
+
+
+### 4. POSTGRESQL (HELM, чарт учителя 1.3.0) ##########################
+
+# логин helm -> ECR
+aws ecr get-login-password --region eu-north-1 --profile ica0022 | helm registry login --username AWS --password-stdin 609722444275.dkr.ecr.eu-north-1.amazonaws.com
+
+# версии чарта
+aws ecr describe-images --repository-name charts/ica0022_postgresql --profile ica0022 --region eu-north-1 --query 'imageDetails[].imageTags' --output text
+
+# скачать и прочитать
+helm pull oci://609722444275.dkr.ecr.eu-north-1.amazonaws.com/charts/ica0022_postgresql --version 1.3.0 --untar --untardir prep
+cat prep/ica0022_postgresql/values.yaml
+cat prep/ica0022_postgresql/templates/deployment.yaml
+
+# свои values
+cat > db-values.yaml <<'EOF'
+fullnameOverride: "db"
+
+auth:
+  database: "ica0022"
+  username: "ica0022"
+  password: "ica0022"
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 512Mi
+
+persistence:
+  enabled: true
+  storageClass: ""
+
+initdb:
+  enabled: true
+  scripts:
+    init.sql: |
+      CREATE TABLE IF NOT EXISTS counter (
+          id integer PRIMARY KEY CHECK (id = 1),
+          visits bigint NOT NULL DEFAULT 0
+      );
+      INSERT INTO counter (id, visits) VALUES (1, 0)
+      ON CONFLICT (id) DO NOTHING;
+EOF
+
+# template -> install
+helm template db oci://609722444275.dkr.ecr.eu-north-1.amazonaws.com/charts/ica0022_postgresql --version 1.3.0 -f db-values.yaml | grep -n "kind:\|name: db"
+helm install db oci://609722444275.dkr.ecr.eu-north-1.amazonaws.com/charts/ica0022_postgresql --version 1.3.0 -f db-values.yaml
+
+# изменения values -> upgrade
+helm upgrade db oci://609722444275.dkr.ecr.eu-north-1.amazonaws.com/charts/ica0022_postgresql --version 1.3.0 -f db-values.yaml
+
+# проверка БД (NOTES: Data: PVC db-data)
+helm list
+helm history db
+kubectl get pods
+kubectl get pvc
+kubectl exec deploy/db -- psql -U ica0022 -d ica0022 -c 'SELECT * FROM counter;'
+
+# проверка persistence
+kubectl exec deploy/db -- psql -U ica0022 -d ica0022 -c 'UPDATE counter SET visits = 42 WHERE id = 1;'
+kubectl rollout restart deploy/db
+kubectl get pods -w
+kubectl exec deploy/db -- psql -U ica0022 -d ica0022 -c 'SELECT * FROM counter;'
+
+
+### 5. DEPLOYMENT + SERVICE ###########################################
+
+kubectl create deployment app \
+  --image=609722444275.dkr.ecr.eu-north-1.amazonaws.com/students/kafina:v2.0.0 \
+  --port=8080 \
+  --dry-run=client -o yaml > k8s/app-deployment.yaml
+
+# vim: в контейнер (уровень image:), удалить resources: {}
+#        envFrom:
+#        - configMapRef:
+#            name: app-config
+#        - secretRef:
+#            name: app-secret
+#        livenessProbe:
+#          httpGet:
+#            path: /healthz
+#            port: 8080
+#          initialDelaySeconds: 5
+#          periodSeconds: 10
+#        readinessProbe:
+#          httpGet:
+#            path: /readyz
+#            port: 8080
+#          initialDelaySeconds: 3
+#          periodSeconds: 5
+#        resources:
+#          requests:
+#            cpu: 50m
+#            memory: 64Mi
+#          limits:
+#            memory: 128Mi
+
+kubectl create service clusterip app --tcp=8080:8080 \
+  --dry-run=client -o yaml > k8s/app-service.yaml
+
+kubectl apply -f k8s/
+
+# проверка
+kubectl rollout status deploy/app
+kubectl get pods
+kubectl get endpoints app
+kubectl describe pod -l app=app
+kubectl logs deploy/app
+
+# port-forward + curl (второй терминал)
+kubectl port-forward svc/app 8080:8080
+curl -i localhost:8080/healthz
+curl -i localhost:8080/readyz
+curl -i localhost:8080/
+
+
+### 6. INGRESS (ALB) ##################################################
+
+kubectl create ingress app \
+  --class=alb \
+  --rule="/*=app:8080" \
+  --annotation=alb.ingress.kubernetes.io/scheme=internet-facing \
+  --annotation=alb.ingress.kubernetes.io/target-type=ip \
+  --annotation=alb.ingress.kubernetes.io/healthcheck-path=/readyz \
+  --dry-run=client -o yaml > k8s/app-ingress.yaml
+
+kubectl apply -f k8s/app-ingress.yaml
+kubectl get ingress -w
+kubectl describe ingress app
+
+curl -i http://<ADDRESS>/readyz
+curl -i http://<ADDRESS>/
+
+
+### 7. HELM CHART ПРИЛОЖЕНИЯ ##########################################
+
+# values: config, probes, resources (+ image.tag)
+helm create chart
+
+# перед install: удалить манифесты (ingress квота = 1), db НЕ трогать
+kubectl delete -f k8s/
+
+helm lint chart
+helm template app chart
+helm install app chart --dry-run=server
+helm install app chart
+
+helm list
+helm history app
+helm get values app
+helm get manifest app
+
+helm upgrade app chart
+helm upgrade app chart --set-string image.tag=v2.0.0
+helm rollback app 1
+
+# если postgres как dependency в Chart.yaml
+helm dependency build chart
+
+
+### 8. ДИАГНОСТИКА ####################################################
+
+kubectl get events --sort-by=.lastTimestamp
+kubectl describe pod <pod>
+kubectl logs <pod> --previous
+kubectl get deploy app -o yaml
+kubectl describe pvc db-data
+kubectl rollout restart deploy/app
+
+# быстрые правки
+kubectl set image deploy/app <container>=609722444275.dkr.ecr.eu-north-1.amazonaws.com/students/kafina:v2.0.0
+kubectl set resources deploy/app --requests=cpu=50m,memory=64Mi --limits=memory=128Mi
+kubectl set env deploy/app DB_HOST=db
+kubectl scale deploy/app --replicas=0
+kubectl patch svc app -p '{"spec":{"selector":{"app":"app"}}}'
+kubectl rollout undo deploy/app
+
+
+### 9. УБОРКА #########################################################
+
+kubectl delete -f k8s/app-ingress.yaml
+kubectl delete -f k8s/
+helm uninstall app
+helm uninstall db
+kubectl delete pvc db-data
+kubectl get all,cm,secret,pvc,ingress
+
+# ECR (если есть права)
+aws ecr batch-delete-image --repository-name students/kafina --image-ids imageTag=v2.0.0 --profile ica0022 --region eu-north-1
