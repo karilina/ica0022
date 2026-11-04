@@ -1,5 +1,10 @@
 fullnameOverride: "db"
 
+image:
+  repository: postgres
+  tag: 17-bookworm
+  pullPolicy: IfNotPresent
+
 auth:
   database: "ica0022"
   username: "ica0022"
@@ -12,6 +17,12 @@ resources:
   limits:
     memory: 512Mi
 
+persistence:
+  size: 1Gi
+  storageClass: ""
+  # Subdirectory on the volume; a formatted disk is not an empty directory.
+  subPath: pgdata
+
 initdb:
   enabled: true
   scripts:
@@ -23,3 +34,6 @@ initdb:
       INSERT INTO counter (id, visits)
       VALUES (1, 0)
       ON CONFLICT (id) DO NOTHING;
+
+service:
+  port: 5432
