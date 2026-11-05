@@ -14,6 +14,7 @@ aws sts get-caller-identity --profile ica0022
 # kubeconfig (только если контекста нет)
 aws eks update-kubeconfig --region eu-north-1 --name ica0022 --profile ica0022 --alias ica0022
 kubectl config set-context ica0022 --namespace student-kafina
+kubectl config set-context --current --namespace student-kafina
 
 # контекст
 kubectl config get-contexts
